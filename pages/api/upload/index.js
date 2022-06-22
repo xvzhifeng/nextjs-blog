@@ -5,6 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import { createClient } from '../../../lib/mysql-client'
 import moment from 'moment'
+import { checkPrime } from 'crypto';
 
 let result = null
 
@@ -12,6 +13,7 @@ export default (req, res) => {
     result = res;
     const form = formidable({});
     // console.log(form)
+    console.log(getClientIP(req))
     form.parse(req, (err, fields, files) => {
         // console.log(fields)
         // console.log(files)
@@ -21,6 +23,7 @@ export default (req, res) => {
             res.end(String(err));
             return;
         }
+        check(res);
         saveFile(files.file, res);
         // res.writeHead(200, { 'Content-Type': 'application/json' });
         // res.end(JSON.stringify({ fields, files }, null, 2));
@@ -71,9 +74,9 @@ function saveFile(file, res) {
         }
         let mysqlClient = createClient()
         let insert_cmd = "insert into blog_content(file_name, content, create_date) values (?, ?,?)"
-        console.log(new Date().getTime())
+        // console.log(new Date().getTime())
         const json_bufTry = JSON.stringify(data);
-        console.log(new Date().toLocaleDateString())
+        // console.log(new Date().toLocaleDateString())
         let insert_values = [file.originalFilename, data, getTime()]
         mysqlClient.query(insert_cmd, insert_values, function (err, result) {
             if (err) {
@@ -116,11 +119,47 @@ function responseEnd(err) {
     }
 }
 
-function getTime(){
+function getTime() {
     let date = new Date()
     let timeq = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDay()
-    
+
     let time = moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
     console.log(time)
     return time
+}
+
+/**
+ * @getClientIP
+ * @desc 获取用户 ip 地址
+ * @param {Object} req - 请求
+ */
+function getClientIP(req) {
+    return req.headers['x-forwarded-for'] || // 判断是否有反向代理 IP
+        req.connection.remoteAddress || // 判断 connection 的远程 IP
+        req.socket.remoteAddress || // 判断后端的 socket 的 IP
+        req.connection.socket.remoteAddress;
+};
+
+function check(res) {
+    let select_md = `SELECT count(*) as count
+                        from blog_scurity
+                        WHERE SUBTIME(NOW(), 1800) < create_date`
+
+    let mysqlClient = createClient()
+    mysqlClient.query(select_md, function (err, result) {
+        if (err) {
+            console.log('[INSERT ERROR] - ', err.message);
+            res.status(500).json({ "error": err.message })
+            return;
+        }
+        console.log('--------------------------INSERT----------------------------');
+        //console.log('INSERT ID:',result.insertId);        
+        console.log(':', result[0].count);
+        console.log('-----------------------------------------------------------------\n\n');
+        if(result[0].count <= 0) {
+            res.status(500).json({ "error": "auth faild" })
+            return;
+        }
+    })
+
 }

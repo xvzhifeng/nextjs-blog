@@ -17,10 +17,21 @@ export default function app() {
     }
     let submit = () => {
         let data1 = md5(data)
-        if(data1 == "2f7e4c8e09a8d34c6b3c5e8952fd8d92") {
-            localStorage.setItem("upload", data1)
-            router.push("/upload")
-        }
+        fetch('/api/security').then(res => res.json()).then(res=>{
+            if(res.results.length > 0 && data1 == res.results[0].auth_code && !localStorage.getItem("upload")) {
+                localStorage.setItem("upload", data1)
+                fetch('/api/security/add').then(res => res.json()).then(res=>{
+                    console.log(res);
+                    router.push("/upload")
+                })
+            } else {
+                router.push("/")
+            }
+            console.log(res.results[0].auth_code);
+            console.log(res.results.length)
+            // console.log(res)
+        })
+        
     }
 
     return (
