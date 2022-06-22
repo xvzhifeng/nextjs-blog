@@ -1,7 +1,10 @@
+import { FormControlUnstyledContext } from '@mui/base';
+import { da } from 'date-fns/locale';
 import formidable from 'formidable';
 import fs from 'fs'
 import path from 'path'
-
+import { createClient } from '../../../lib/mysql-client'
+import moment from 'moment'
 
 let result = null
 
@@ -10,15 +13,15 @@ export default (req, res) => {
     const form = formidable({});
     // console.log(form)
     form.parse(req, (err, fields, files) => {
-        console.log(fields)
-        console.log(files)
-        console.log(files.file)
+        // console.log(fields)
+        // console.log(files)
+        // console.log(files.file)
         if (err) {
             res.writeHead(err.httpCode || 400, { 'Content-Type': 'text/plain' });
             res.end(String(err));
             return;
         }
-        saveFile(files.file);
+        saveFile(files.file, res);
         // res.writeHead(200, { 'Content-Type': 'application/json' });
         // res.end(JSON.stringify({ fields, files }, null, 2));
         return;
@@ -48,24 +51,54 @@ function createDir(path) {
     }
 }
 
-function saveFile(file) {
+function saveFile(file, res) {
     // 读文件
+
+    // const fileContents = fs.readFileSync(file.filepath)
+    // console.log(fileContents.data)
+    // console.log(typeof fileContents)
+
+    // const json_bufTry=JSON.stringify(fileContents);
+    // const json_b = JSON.parse(json_bufTry)
+    // console.log(json_bufTry);
+    // console.log(typeof json_b)
+    // console.log(json_b.toString())
+    // let buff = Buffer.from(json_b.data)
+    // console.log(buff.toString())
     fs.readFile(file.filepath, (err, data) => {
         if (err) {
             responseEnd(err)
         }
-        const basePath = 'D:/code/github/nextjs-blog/posts/'
-        // 创建目录
-        createDir(basePath)
-        console.log(path.join(basePath, file.originalFilename))
-        console.log(data);
-        // 写入文件
-        fs.writeFile(path.join(basePath, file.originalFilename), data, async (err) => {
+        let mysqlClient = createClient()
+        let insert_cmd = "insert into blog_content(file_name, content, create_date) values (?, ?,?)"
+        console.log(new Date().getTime())
+        const json_bufTry = JSON.stringify(data);
+        console.log(new Date().toLocaleDateString())
+        let insert_values = [file.originalFilename, data, getTime()]
+        mysqlClient.query(insert_cmd, insert_values, function (err, result) {
             if (err) {
-                responseEnd(err)
+                console.log('[INSERT ERROR] - ', err.message);
+                res.status(500).json({ "error": err.message })
+                return;
             }
-            responseEnd()
+            console.log('--------------------------INSERT----------------------------');
+            //console.log('INSERT ID:',result.insertId);        
+            console.log('INSERT ID:', result);
+            console.log('-----------------------------------------------------------------\n\n');
+            res.status(200).json({ result })
         })
+        // const basePath = 'D:/code/github/nextjs-blog/posts/'
+        // // 创建目录
+        // createDir(basePath)
+        // console.log(path.join(basePath, file.originalFilename))
+        // console.log(data);
+        // // 写入文件
+        // fs.writeFile(path.join(basePath, file.originalFilename), data, async (err) => {
+        //     if (err) {
+        //         responseEnd(err)
+        //     }
+        //     responseEnd()
+        // })
     })
 }
 
@@ -81,4 +114,13 @@ function responseEnd(err) {
         result.statusCode = 200
         result.end('success')
     }
+}
+
+function getTime(){
+    let date = new Date()
+    let timeq = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDay()
+    
+    let time = moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
+    console.log(time)
+    return time
 }
