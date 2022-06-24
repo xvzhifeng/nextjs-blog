@@ -16,6 +16,7 @@
     "js-md5": "^0.7.3",
     "moment": "^2.29.3",
     "mysql": "^2.18.1",
+    "mysql-await": "^2.1.8",
     "net": "^1.0.2",
     "next": "latest",
     "react": "17.0.2",

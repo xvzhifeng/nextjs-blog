@@ -23,8 +23,7 @@ export default (req, res) => {
             res.end(String(err));
             return;
         }
-        check(res);
-        saveFile(files.file, res);
+        check(res, files);
         // res.writeHead(200, { 'Content-Type': 'application/json' });
         // res.end(JSON.stringify({ fields, files }, null, 2));
         return;
@@ -73,11 +72,11 @@ function saveFile(file, res) {
             responseEnd(err)
         }
         let mysqlClient = createClient()
-        let insert_cmd = "insert into blog_content(file_name, content, create_date) values (?, ?,?)"
+        let insert_cmd = "insert into blog_content(file_name, content, create_date) values (?, ?,now())"
         // console.log(new Date().getTime())
         const json_bufTry = JSON.stringify(data);
         // console.log(new Date().toLocaleDateString())
-        let insert_values = [file.originalFilename, data, getTime()]
+        let insert_values = [file.originalFilename, data]
         mysqlClient.query(insert_cmd, insert_values, function (err, result) {
             if (err) {
                 console.log('[INSERT ERROR] - ', err.message);
@@ -104,6 +103,49 @@ function saveFile(file, res) {
         // })
     })
 }
+
+function updateFile(file, res) {
+    
+    fs.readFile(file.filepath, (err, data) => {
+        if (err) {
+            responseEnd(err)
+        }
+        let mysqlClient = createClient()
+        let update_cmd = `update blog_content
+        set content = ?, update_date = now()
+        WHERE file_name = ?;`
+        let update_value = [data, file.originalFilename]
+        // console.log(new Date().getTime())
+        const json_bufTry = JSON.stringify(data);
+        // console.log(new Date().toLocaleDateString())
+        let insert_values = [file.originalFilename, data, getTime()]
+        mysqlClient.query(update_cmd, update_value, function (err, result) {
+            if (err) {
+                console.log('[update ERROR] - ', err.message);
+                res.status(500).json({ "error": err.message })
+                return;
+            }
+            console.log('--------------------------INSERT----------------------------');
+            //console.log('INSERT ID:',result.insertId);        
+            console.log('update ID:', result);
+            console.log('-----------------------------------------------------------------\n\n');
+            res.status(200).json({ result })
+        })
+        // const basePath = 'D:/code/github/nextjs-blog/posts/'
+        // // 创建目录
+        // createDir(basePath)
+        // console.log(path.join(basePath, file.originalFilename))
+        // console.log(data);
+        // // 写入文件
+        // fs.writeFile(path.join(basePath, file.originalFilename), data, async (err) => {
+        //     if (err) {
+        //         responseEnd(err)
+        //     }
+        //     responseEnd()
+        // })
+    })
+}
+
 
 /**
  * 服务器响应
@@ -140,9 +182,9 @@ function getClientIP(req) {
         req.connection.socket.remoteAddress;
 };
 
-function check(res) {
+function check(res, files) {
     let select_md = `SELECT count(*) as count
-                        from blog_scurity
+                        from blog_security
                         WHERE SUBTIME(NOW(), 1800) < create_date`
 
     let mysqlClient = createClient()
@@ -154,12 +196,30 @@ function check(res) {
         }
         console.log('--------------------------INSERT----------------------------');
         //console.log('INSERT ID:',result.insertId);        
-        console.log(':', result[0].count);
+        console.log('SELECT :', result[0].count);
         console.log('-----------------------------------------------------------------\n\n');
-        if(result[0].count <= 0) {
+        if (result[0].count <= 0) {
             res.status(500).json({ "error": "auth faild" })
             return;
         }
+        is_unit(res, files);
     })
+}
 
+function is_unit(res, files) {
+    let mysqlClient = createClient()
+    let select_md = `select count(*) as count from blog_content where file_name = '${files.file.originalFilename}'`
+    mysqlClient.query(select_md, function (err, result, fields) {
+        if (err) {
+            console.log('[select ERROR] - ', err.message);
+            res.status(500).json({ "error": err.message })
+            return;
+        }
+        console.log(result);
+        if (result[0].count > 0) {
+            updateFile(files.file, res);
+        } else {
+            saveFile(files.file, res);
+        }
+    })
 }

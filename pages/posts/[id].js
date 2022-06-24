@@ -2,7 +2,11 @@
 // import { getAllPostIds, getPostData } from '../../lib/posts'
 // import Head from 'next/head'
 // import utilStyles from '../../styles/utils.module.css'
-
+export default function Post() { 
+    return (
+        <></>
+    )
+}
 // export default function Post({ postData }) {
 //     return (
 //         <Layout>

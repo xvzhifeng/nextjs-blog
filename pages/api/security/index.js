@@ -3,7 +3,7 @@ import { createClient } from '../../../lib/mysql-client'
 export default function addSecurity(req, res) {
     // const fileNames = fs.readdirSync(postsDirectory)
     let client = createClient()
-    let select_md = `select auth_code from blog_scurity
+    let select_md = `select auth_code from blog_security
                         ORDER BY CREATE_date
                         limit 0,1`
     client.query(select_md, function (err, results, fields) {

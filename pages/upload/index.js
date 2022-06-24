@@ -41,7 +41,6 @@ const App = () => {
         setData(localStorage.getItem("upload"));
         if (!localStorage.getItem("upload")) {
             // 没有权限进行上传，跳转到权限认证页面
-    
             router.push('/security')
         }
     }, []);
