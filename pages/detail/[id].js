@@ -5,41 +5,62 @@ import utilStyles from '../../styles/utils.module.css'
 import matter from 'gray-matter'
 import { remark } from 'remark'
 import html from 'remark-html'
+import { createAwait } from '../../lib/mysql-client'
+import { id } from 'date-fns/locale'
 
-export default function Post({ postData }) {
+export default function detail({ postData }) {
     return (
         <Layout>
             <Head>
-                <title>{postData.title}</title>
+                <title>{postData?.title}</title>
             </Head>
             <article>
-                <h1 className={utilStyles.headingXl}>{postData.title}</h1>
+                <h1 className={utilStyles.headingXl}>{postData?.title}</h1>
                 <div className={utilStyles.lightText}>
-                    <Date dateString={postData.date} />
+                    <Date dateString={postData?.date} />
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: postData.contentHtml }} />
+                <div dangerouslySetInnerHTML={{ __html: postData?.contentHtml }} />
             </article>
         </Layout>
     )
 }
 
 export async function getStaticPaths() {
-    let res = await fetch('http://127.0.0.1:3000/api/getBlogInfo/getAllIds');
-    let paths = await res.json()
-    console.log(paths)
+    let client = createAwait()
+    let select_md = "select file_name from blog_content where file_name like '%md'"
+    let results = await client.awaitQuery(select_md)
+    let paths = results.map(fileName => {
+        return {
+            params: {
+                id: fileName.file_name.replace(/\.md$/, '')
+            }
+        }
+    })
+    // console.log(paths);
+    // let res = await fetch('/api/getBlogInfo/getAllIds');
+    // let paths = await res.json()
+    // console.log(paths)
     return {
         paths,
         fallback: true
     }
 }
 
-export async function getStaticProps ({ params }) {
-
+export async function getStaticProps({ params }) {
+    let client = createAwait()
+    let select_md = `select * from blog_content where file_name like '%md' and file_name = '${params.id}.md'`
     console.log(params.id)
-    let res = await fetch('http://127.0.0.1:3000/api/getBlogInfo/getById?id='+params.id);
-    let data = await res.json()
+    let results = await client.awaitQuery(select_md)
+    let data = await results.map(result => {
+        // console.log(result.content.toString())
+        let content = result.content.toString();
+        return {
+            'id': result.file_name,
+            content,
+            'date': result.create_date
+        }
+    })
     console.log(data)
-    console.log(typeof data)
     // Use gray-matter to parse the post metadata section
     const matterResult = matter(data[0].content)
 
@@ -54,14 +75,17 @@ export async function getStaticProps ({ params }) {
     //     ...matterResult.data
     // }
     // const postData = await getPostData(params.id)
-    const postData = {
-        'id' :params.id,
-            contentHtml,
-            ...matterResult.data
-        }
+    const postData =    {
+        'id': params.id,
+        contentHtml,
+        'title': params.id,
+        ...matterResult.data
+    }
+    console.log(postData)
     return {
         props: {
             postData
-        }
+        },
+        revalidate: 10,
     }
 }

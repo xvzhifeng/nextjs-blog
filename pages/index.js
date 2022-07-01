@@ -40,7 +40,7 @@ export default function Home({ allPostsData }) {
 }
 
 export async function getServerSideProps(context) {
-  const res = await fetch('http://127.0.0.1:3000/api/getBlogInfo')
+  const res = await fetch('http://localhost:3000/api/getBlogInfo')
   const data = await res.json()
   let allPostsData = data
   console.log(allPostsData)
