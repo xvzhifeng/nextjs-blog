@@ -1,13 +1,31 @@
 import Head from 'next/head'
 import Layout, { siteTitle } from '../components/layout'
 import utilStyles from '../styles/utils.module.css'
+import useSWR from "swr";
 // import { getSortedPostsData } from '../lib/posts'
 import Link from 'next/link'
 import Date from '../components/date'
+import { useEffect } from 'react';
 
 export default function Home({ allPostsData }) {
+
+  const fetcher = (url) => fetch(url).then((res) => res.json())
+  const { data, error } = useSWR('/api/getBlogInfo', fetcher)
+
+  if (!data) {
+    return (
+      <Layout home>
+        <img
+          src="/images/loading.gif"
+        // className={`${styles.headerHomeImage} ${utilStyles.borderCircle}`}
+        // alt={name}
+        />
+      </Layout>
+    )
+  }
   return (
     <Layout home>
+      {console.log(data)}
       <Head>
         <title>{siteTitle}</title>
       </Head>
@@ -22,7 +40,7 @@ export default function Home({ allPostsData }) {
       <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
         <h2 className={utilStyles.headingLg}>Blog</h2>
         <ul className={utilStyles.list}>
-          {allPostsData.map(({ id, date, title }) => (
+          {data.map(({ id, date, title }) => (
             <li className={utilStyles.listItem} key={id}>
               <Link href={`/detail/${id}`}>
                 <a>{title}</a>
@@ -40,6 +58,8 @@ export default function Home({ allPostsData }) {
 }
 
 export async function getServerSideProps(context) {
+  // const fetcher = (url) => fetch(url).then((res) => res.json())
+  // const { data, error } = useSWR('http://localhost:3000/api/getBlogInfo', fetcher)
   const res = await fetch('http://localhost:3000/api/getBlogInfo')
   const data = await res.json()
   let allPostsData = data
@@ -49,4 +69,6 @@ export async function getServerSideProps(context) {
       allPostsData
     }
   }
+
+
 }
