@@ -24,8 +24,8 @@ let CopyBtn = () => {
 }
 
 export default function detail({ postData }) {
-    let content = postData.content.replace(/```[^`\n]*\n+[^```]+```\n*/g, '')
-    console.log(content)
+    // let content = postData.content.replace(/```[^`\n]*\n+[^```]+```\n*/g, '')
+    // console.log(content)
 
     let createCopyBtn = (id) => {
         let cb = document.createElement('div')
@@ -70,7 +70,7 @@ export default function detail({ postData }) {
         })
         // 获取到内容中所有的code标签
         const codes = document.querySelectorAll('pre code')
-        console.log(codes)
+        // console.log(codes)
         codes.forEach((el) => {
             // 让code进行高亮
             hljs.highlightElement(el)
@@ -126,7 +126,6 @@ export async function getStaticPaths() {
             }
         }
     })
-    client.destroy()
     // console.log(paths);
     // let res = await fetch('/api/getBlogInfo/getAllIds');
     // let paths = await res.json()
@@ -152,7 +151,6 @@ export async function getStaticProps({ params }) {
             'date': result.create_date
         }
     })
-    client.destroy()
 
     // Use gray-matter to parse the post metadata section
     const matterResult = matter(data[0].content)
@@ -175,7 +173,7 @@ export async function getStaticProps({ params }) {
         'content': data[0].content.replace(/```[^`\n]*\n+[^```]+```\n*/g, ''),
         ...matterResult.data
     }
-    console.log(postData)
+    // console.log(postData)
     return {
         props: {
             postData

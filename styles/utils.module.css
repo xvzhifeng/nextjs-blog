@@ -54,6 +54,7 @@
 .leftNav {
     height: 80%;
     /* width: 20rem; */
+    max-width: 20rem;
     position: fixed;
     z-index: 1;
     top: 10%;

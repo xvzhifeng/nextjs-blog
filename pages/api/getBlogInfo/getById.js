@@ -12,7 +12,7 @@ export default function getByID(req, res) {
             console.log(err)
             return;
         }
-        console.log(results)
+        // console.log(results)
         let resu = results.map(result => {
 
             // console.log(result.content.toString())
@@ -23,7 +23,7 @@ export default function getByID(req, res) {
                 'date':result.create_date
             }
         })
-        console.log(resu)
+        // console.log(resu)
         res.status(200).json(resu)
     })
     // Returns an array that looks like this:
