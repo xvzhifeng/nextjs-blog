@@ -4,10 +4,10 @@ import utilStyles from '../styles/utils.module.css'
 // import { getSortedPostsData } from '../lib/posts'
 import Link from 'next/link'
 import Date from '../components/date'
-
+import TopBar from '../lib/topbar'
 export default function Home({ allPostsData }) {
   return (
-    <Layout home>
+    <Layout home topbar={TopBar}>
       <Head>
         <title>{siteTitle}</title>
       </Head>
