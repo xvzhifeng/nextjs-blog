@@ -6,14 +6,104 @@ import matter from 'gray-matter'
 import { remark } from 'remark'
 import html from 'remark-html'
 import { createAwait } from '../../lib/mysql-client'
-import { id } from 'date-fns/locale'
+import MarkdownNav from '../../lib/markdown-nav'
+import hljs from 'highlight.js';
+import 'highlight.js/styles/vs2015.css'
+import { useEffect } from 'react'
+import ClipboardJS from "clipboard"
+import { Button, message, Space } from 'antd';
+
+
+
+let CopyBtn = () => {
+    return (
+        <div className={utilStyles.CopyBtn}>
+            <button>复制代码</button>
+        </div>
+    )
+}
 
 export default function detail({ postData }) {
+    // let content = postData.content.replace(/```[^`\n]*\n+[^```]+```\n*/g, '')
+    // console.log(content)
+
+    let createCopyBtn = (id) => {
+        let cb = document.createElement('div')
+        cb.innerHTML = "复制"
+        cb.setAttribute("id",id)
+        cb.setAttribute("data-clipboard-action", "copy");
+        cb.setAttribute("data-clipboard-target", "#pre"+id)
+        cb.setAttribute("class", "btn")
+        cb.style.position = "absolute"
+        cb.style.right = "36rem"
+        cb.style.float = "right"
+        cb.style.color = "white"
+        // cb.onclick = (cb) => {
+        //     console.log(id)
+        // }
+        // cb.addEventListener('click',(envent, cb) => {
+        //     console.log(envent)
+        //     console.log(envent.path)
+        //     console.log(cb)
+        //     alert("test")
+        // })
+        return cb;
+    }
+    let copy = () => {
+        var clipboard = new ClipboardJS('.btn');
+        clipboard.on('success', function(e) {
+            console.log("复制成功")
+            message.success("复制成功");
+            
+        });
+        clipboard.on('error', function(e) {
+            console.log("复制失败")
+            message.success("复制失败");
+        });
+    }
+
+    useEffect(() => {
+        // 配置 highlight.js
+        hljs.configure({
+            // 忽略未经转义的 HTML 字符
+            ignoreUnescapedHTML: true
+        })
+        // 获取到内容中所有的code标签
+        const codes = document.querySelectorAll('pre code')
+        // console.log(codes)
+        codes.forEach((el) => {
+            // 让code进行高亮
+            hljs.highlightElement(el)
+        })
+
+        // copy to clipboard
+        copy()
+        // add copy need info
+        let pre = document.getElementsByTagName("pre");
+        for (let i = 0; i < pre.length; i++) {
+            let code = pre[i].getElementsByTagName("code");
+            code[0].setAttribute("id",`pre${i}`)
+            pre[i].insertBefore(createCopyBtn(i), code[0])
+        }
+    }, [])
+
     return (
         <Layout>
             <Head>
                 <title>{postData?.title}</title>
             </Head>
+            <div className={utilStyles.noScroll}>
+                <div className={utilStyles.leftNav}>
+                    <MarkdownNav
+                        source={postData?.content}
+                        ordered={false}
+                        headingTopOffset={80}
+                    >
+                    </MarkdownNav>
+                </div>
+
+            </div>
+
             <article>
                 <h1 className={utilStyles.headingXl}>{postData?.title}</h1>
                 <div className={utilStyles.lightText}>
@@ -54,13 +144,14 @@ export async function getStaticProps({ params }) {
     let data = await results.map(result => {
         // console.log(result.content.toString())
         let content = result.content.toString();
+        // console.log(content)
         return {
             'id': result.file_name,
             content,
             'date': result.create_date
         }
     })
-    console.log(data)
+
     // Use gray-matter to parse the post metadata section
     const matterResult = matter(data[0].content)
 
@@ -75,13 +166,14 @@ export async function getStaticProps({ params }) {
     //     ...matterResult.data
     // }
     // const postData = await getPostData(params.id)
-    const postData =    {
+    const postData = {
         'id': params.id,
         contentHtml,
         'title': params.id,
+        'content': data[0].content.replace(/```[^`\n]*\n+[^```]+```\n*/g, ''),
         ...matterResult.data
     }
-    console.log(postData)
+    // console.log(postData)
     return {
         props: {
             postData

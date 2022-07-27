@@ -50,3 +50,39 @@
 .lightText {
     color: #999;
 }
+
+.leftNav {
+    height: 80%;
+    /* width: 20rem; */
+    max-width: 20rem;
+    position: fixed;
+    z-index: 1;
+    top: 10%;
+    left: 5rem;
+    margin: 1rem;
+    /* background-color: #111; */
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+
+.noScroll ::-webkit-scrollbar {
+    width: 0;
+}
+
+
+.element ::-webkit-scrollbar {
+    width: 0 !important
+}
+
+.leftGitee {
+    position: sticky;
+    top: 46px;
+    left: 5rem;
+    float: left;
+}
+
+.copyBtn {
+    float: right;
+    width: 100px;
+    height: 100px;
+}

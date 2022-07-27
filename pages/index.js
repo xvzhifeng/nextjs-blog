@@ -5,8 +5,7 @@ import useSWR from "swr";
 // import { getSortedPostsData } from '../lib/posts'
 import Link from 'next/link'
 import Date from '../components/date'
-import { useEffect } from 'react';
-
+import TopBar from '../lib/topbar'
 export default function Home({ allPostsData }) {
 
   const fetcher = (url) => fetch(url).then((res) => res.json())
@@ -24,8 +23,7 @@ export default function Home({ allPostsData }) {
     )
   }
   return (
-    <Layout home>
-      {console.log(data)}
+    <Layout home topbar={TopBar}>
       <Head>
         <title>{siteTitle}</title>
       </Head>
