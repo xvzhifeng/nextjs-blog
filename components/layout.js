@@ -3,9 +3,9 @@ import styles from './layout.module.css'
 import utilStyles from '../styles/utils.module.css'
 import Link from 'next/link'
 import TopBar from '../lib/topbar'
-
+import {PROFILER} from '../lib/constant'
 const name = 'Sumu'
-export const siteTitle = 'Next.js Sample Website'
+export const siteTitle = `Sumu's blog`
 
 export default function Layout({ children, home, topbar }) {
     console.log(topbar)
@@ -35,7 +35,7 @@ export default function Layout({ children, home, topbar }) {
                     {home ? (
                         <>
                             <img
-                                src="/images/profile.jpg"
+                                src={PROFILER}
                                 className={`${styles.headerHomeImage} ${utilStyles.borderCircle}`}
                                 alt={name}
                             />
@@ -46,7 +46,7 @@ export default function Layout({ children, home, topbar }) {
                             <Link href="/">
                                 <a>
                                     <img
-                                        src="/images/profile.jpg"
+                                        src={PROFILER}
                                         className={`${styles.headerImage} ${utilStyles.borderCircle}`}
                                         alt={name}
                                     />
