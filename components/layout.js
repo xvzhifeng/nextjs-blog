@@ -4,7 +4,7 @@ import utilStyles from '../styles/utils.module.css'
 import Link from 'next/link'
 import TopBar from '../lib/topbar'
 
-const name = 'sumu'
+const name = 'Sumu'
 export const siteTitle = 'Next.js Sample Website'
 
 export default function Layout({ children, home, topbar }) {
