@@ -56,18 +56,16 @@ export default function Home({ allPostsData }) {
   )
 }
 
-// export async function getServerSideProps(context) {
-//   // const fetcher = (url) => fetch(url).then((res) => res.json())
-//   // const { data, error } = useSWR('http://localhost:3000/api/getBlogInfo', fetcher)
-//   const res = await fetch(PREFIX_URL + '/api/getBlogInfo')
-//   const data = await res.json()
-//   let allPostsData = data
-//   console.log(allPostsData)
-//   return {
-//     props: {
-//       allPostsData
-//     }
-//   }
-
-
-// }
+export async function getServerSideProps(context) {
+  // const fetcher = (url) => fetch(url).then((res) => res.json())
+  // const { data, error } = useSWR('http://localhost:3000/api/getBlogInfo', fetcher)
+  // const res = await fetch(PREFIX_URL + '/api/getBlogInfo')
+  // const data = await res.json()
+  // let allPostsData = data
+  // console.log(allPostsData)
+  return {
+    props: {
+      allPostsData:""
+    }
+  }
+}
