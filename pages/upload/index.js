@@ -4,6 +4,7 @@ import { message, Upload } from 'antd';
 import { storage } from '../../lib/util'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react';
+import 'antd/dist/antd.css';
 
 const { Dragger } = Upload;
 const props = {
@@ -45,7 +46,13 @@ const App = () => {
         }
     }, []);
 
-    
+    if (!data) {
+        // 没有权限进行上传，跳转到权限认证页面
+        return (
+            <Layout></Layout>
+        )
+    }
+
 
     return (
         <Layout>
@@ -65,6 +72,13 @@ const App = () => {
 
 }
 
+export async function getServerSideProps() {
+    return {
+        props: {
+            data: ""
+        }
+    }
+}
 
 // export function  getInitialProps({ res }) {
 //     if (someCondition) {
