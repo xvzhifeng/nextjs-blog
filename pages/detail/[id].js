@@ -9,7 +9,7 @@ import { createAwait } from '../../lib/mysql-client'
 import MarkdownNav from '../../lib/markdown-nav'
 import hljs from 'highlight.js';
 import 'highlight.js/styles/vs2015.css'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import ClipboardJS from "clipboard"
 import { Button, message, Space } from 'antd';
 
@@ -26,16 +26,16 @@ let CopyBtn = () => {
 export default function detail({ postData }) {
     // let content = postData.content.replace(/```[^`\n]*\n+[^```]+```\n*/g, '')
     // console.log(content)
-
+    let [width, setWidth] = useState(0)
     let createCopyBtn = (id) => {
         let cb = document.createElement('div')
         cb.innerHTML = "复制"
         cb.setAttribute("id",id)
         cb.setAttribute("data-clipboard-action", "copy");
         cb.setAttribute("data-clipboard-target", "#pre"+id)
-        cb.setAttribute("class", "btn")
+        cb.setAttribute("class", "btn1")
         cb.style.position = "absolute"
-        cb.style.right = "36rem"
+        cb.style.right = "31.5rem"
         cb.style.float = "right"
         cb.style.color = "white"
         // cb.onclick = (cb) => {
@@ -50,7 +50,7 @@ export default function detail({ postData }) {
         return cb;
     }
     let copy = () => {
-        var clipboard = new ClipboardJS('.btn');
+        var clipboard = new ClipboardJS('.btn1');
         clipboard.on('success', function(e) {
             console.log("复制成功")
             message.success("复制成功");
@@ -63,6 +63,9 @@ export default function detail({ postData }) {
     }
 
     useEffect(() => {
+        console.log(window.screen.width)
+        setWidth(window.screen.width)
+        
         // 配置 highlight.js
         hljs.configure({
             // 忽略未经转义的 HTML 字符
@@ -85,6 +88,7 @@ export default function detail({ postData }) {
             code[0].setAttribute("id",`pre${i}`)
             pre[i].insertBefore(createCopyBtn(i), code[0])
         }
+        console.log(width)
     }, [])
 
     return (
@@ -92,7 +96,9 @@ export default function detail({ postData }) {
             <Head>
                 <title>{postData?.title}</title>
             </Head>
-            <div className={utilStyles.noScroll}>
+            { width>=800 &&
+            (
+                <div className={utilStyles.noScroll}>
                 <div className={utilStyles.leftNav}>
                     <MarkdownNav
                         source={postData?.content}
@@ -101,8 +107,9 @@ export default function detail({ postData }) {
                     >
                     </MarkdownNav>
                 </div>
-
             </div>
+            )}
+            
 
             <article>
                 <h1 className={utilStyles.headingXl}>{postData?.title}</h1>
@@ -151,7 +158,7 @@ export async function getStaticProps({ params }) {
             'date': result.create_date
         }
     })
-
+    
     // Use gray-matter to parse the post metadata section
     const matterResult = matter(data[0].content)
 

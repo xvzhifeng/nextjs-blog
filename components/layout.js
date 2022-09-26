@@ -4,15 +4,18 @@ import utilStyles from '../styles/utils.module.css'
 import Link from 'next/link'
 import TopBar from '../lib/topbar'
 import {PROFILER} from '../lib/constant'
+import FileTree from './fileTree'
 const name = 'Sumu'
 export const siteTitle = `Sumu's blog`
 
 export default function Layout({ children, home, topbar }) {
     console.log(topbar)
     return (
-        <div>
+        <div className={styles.com}>
             <TopBar data={['redis','java','react','next']}></TopBar>
-
+            <div className={styles.side}>
+                <FileTree></FileTree>
+            </div>
             <div className={styles.container}>
 
 
@@ -60,7 +63,7 @@ export default function Layout({ children, home, topbar }) {
                         </>
                     )}
                 </header>
-                <main>{children}</main>
+                <main className={styles.main}>{children}</main>
                 {!home && (
                     <div className={styles.backToHome}>
                         <Link href="/">

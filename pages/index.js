@@ -7,11 +7,14 @@ import Link from 'next/link'
 import Date from '../components/date'
 import TopBar from '../lib/topbar'
 import {PREFIX_URL} from '../lib/api'
+import { DownOutlined } from '@ant-design/icons';
+import { Tree } from 'antd';
+import React from 'react';
+import 'antd/dist/antd.css';
+import FileTree from '../components/fileTree';
 export default function Home({ allPostsData }) {
-
   const fetcher = (url) => fetch(url).then((res) => res.json())
   const { data, error } = useSWR('/api/getBlogInfo', fetcher)
-
   if (!data) {
     return (
       <Layout home>
@@ -52,10 +55,31 @@ export default function Home({ allPostsData }) {
           ))}
         </ul>
       </section>
+      {/* <FileTree></FileTree> */}
     </Layout>
   )
 }
 
+// const App = () => {
+//   const fetcher = (url) => fetch(url).then((res) => res.json())
+//   const { data, error1 } = useSWR('/api/getBlogInfo/getTree', fetcher)
+//   const onSelect = (selectedKeys, info) => {
+//     console.log('selected', selectedKeys, info.node.path);
+//   };
+//   if (!data){
+//     return <></>
+//   }
+//   console.log(data)
+//   return (
+//     <Tree
+//       showLine
+//       switcherIcon={<DownOutlined />}
+//       defaultExpandedKeys={['0-0-0']}
+//       onSelect={onSelect}
+//       treeData={data}
+//     />
+//   );
+// };
 export async function getServerSideProps(context) {
   // const fetcher = (url) => fetch(url).then((res) => res.json())
   // const { data, error } = useSWR('http://localhost:3000/api/getBlogInfo', fetcher)
