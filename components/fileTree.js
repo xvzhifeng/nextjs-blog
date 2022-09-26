@@ -29,7 +29,6 @@ export default function FileTree () {
     if (!data) {
         return <></>
     }
-    console.log(data)
     return (
         <Tree
             showLine

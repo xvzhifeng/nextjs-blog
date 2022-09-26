@@ -1,5 +1,6 @@
 import { get_all_directry } from "../../../lib/file-operator";
 import appRootPath from 'app-root-path';
+import 'log-timestamp'
 
 export default function getTree(req, res) {
     console.log("getTree " + appRootPath)

@@ -1117,6 +1117,18 @@
   "resolved" "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
   "version" "4.17.21"
 
+"log-prefix@0.1.1":
+  "integrity" "sha512-aP1Lst8OCdZKATqzXDN0JBissNVZuiKLyo6hOXDBxaQ1jHDsaxh2J1i5Pp0zMy6ayTKDWfUlLMXyLaQe1PJ48g=="
+  "resolved" "https://registry.npmjs.org/log-prefix/-/log-prefix-0.1.1.tgz"
+  "version" "0.1.1"
+
+"log-timestamp@^0.3.0":
+  "integrity" "sha512-luRz6soxijd1aJh0GkLXFjKABihxthvTfWTzu3XhCgg5EivG2bsTpSd63QFbUgS+/KmFtL+0RfSpeaD2QvOV8Q=="
+  "resolved" "https://registry.npmjs.org/log-timestamp/-/log-timestamp-0.3.0.tgz"
+  "version" "0.3.0"
+  dependencies:
+    "log-prefix" "0.1.1"
+
 "longest-streak@^3.0.0":
   "integrity" "sha512-cHlYSUpL2s7Fb3394mYxwTYj8niTaNHUCLr0qdiCXQfSjfuA7CKofpX2uSwEfFDQ0EB7JcnMnm+GjbqqoinYYg=="
   "resolved" "https://registry.npmjs.org/longest-streak/-/longest-streak-3.0.1.tgz"
