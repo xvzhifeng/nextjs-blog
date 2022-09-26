@@ -199,6 +199,7 @@ function check(res, files) {
         console.log('SELECT :', result[0].count);
         console.log('-----------------------------------------------------------------\n\n');
         if (result[0].count <= 0) {
+            console.log('SELECT :', "auth faild");
             res.status(500).json({ "error": "auth faild" })
             return;
         }
