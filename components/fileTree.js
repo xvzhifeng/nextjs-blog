@@ -20,7 +20,7 @@ export default function FileTree () {
         router.push({
             pathname: `/md`,
             query:{
-                mdfile1: `${info.node.path}\\${info.node.title}`,
+                mdfile1: `${info.node.path}/${info.node.title}`,
                 isRefresh: true
             }
         })
