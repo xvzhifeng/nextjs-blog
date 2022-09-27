@@ -1,5 +1,5 @@
 import { FormControlUnstyledContext } from '@mui/base';
-import { da } from 'date-fns/locale';
+import { da, faIR } from 'date-fns/locale';
 import formidable from 'formidable';
 import fs from 'fs'
 import path from 'path'
@@ -10,6 +10,8 @@ import { checkPrime } from 'crypto';
 let result = null
 
 export default (req, res) => {
+    let kinds = req.headers.datakind.split(",")
+
     result = res;
     const form = formidable({});
     // console.log(form)
