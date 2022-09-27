@@ -1,45 +1,51 @@
 import Layout from '../../components/layout'
 import { InboxOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, message, Upload, Tooltip, Search } from 'antd';
-import { Modal } from 'antd';
+import { Button, message, Upload, Tooltip, Modal } from 'antd';
 import { storage } from '../../lib/util'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react';
 import 'antd/dist/antd.css';
 import { Checkbox } from 'antd';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import useSWR from "swr";
 // import KindCheckBox from "../../components/kindCheckBox"
 
 const { Dragger } = Upload;
 
 
 const App = () => {
-
+    const fetcher = (url) => fetch(url).then((res) => res.json())
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [updata, SetUpdata] = useState({})
     const [kinds, SetKinds] = useState("")
     const [plainOptions, SetPlainOptions] = useState([])
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
-    const [modalText, setModalText] = useState('Content of the modal');
+    const [kindName, setkindName] = useState('');
 
     const router = useRouter()
-    const [data, setData] = useState("");
-
+    const [auth, setAuth] = useState("");
+    const {data,error} = useSWR("/api/kind",fetcher)
     useEffect(() => {
-        setData(localStorage.getItem("upload"));
+        setAuth(localStorage.getItem("upload"));
         if (!localStorage.getItem("upload")) {
             // 没有权限进行上传，跳转到权限认证页面
             router.push('/security')
         }
-        fetch("/api/kind").then(res => res.json()).then(res => {
-            console.log(res)
-            SetPlainOptions(res.kinds)
-        })
-        console.log(updata)
-        console.log(props)
-    }, [updata]);
+        console.log(data)
+        SetPlainOptions(data?.kinds)
+        // fetch("/api/kind").then(res => res.json()).then(res => {
+        //     console.log(res)
+        //     SetPlainOptions(res.kinds)
+        // })
+    }, [data]);
 
-    if (!data) {
+    if (!auth) {
         // 没有权限进行上传，跳转到权限认证页面
         return (
             <Layout></Layout>
@@ -84,11 +90,31 @@ const App = () => {
     };
 
     const handleOk = () => {
-        setModalText('The modal will be closed after two seconds');
-        setConfirmLoading(true);
+        let reqData = {"kind": kindName}
+        fetch("/api/kind", {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, *cors, same-origin
+            headers: {
+                'Content-Type': 'application/json'
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(reqData) // body data type must match "Content-Type" header
+        }).then(res => {
+            if(res.status == 200) {
+                setOpen(false);
+                SetPlainOptions([...plainOptions,kindName])
+                message.success("add kind successed .")
+            } else {
+                message.error("add kind faild .")
+            }
+            
+        }).catch((error)=>{
+            message.error("add kind faild .")
+        })
         setTimeout(() => {
             setOpen(false);
-            setConfirmLoading(false);
         }, 2000);
     };
 
@@ -106,9 +132,13 @@ const App = () => {
         setIsModalOpen(true);
         setOpen(true)
     }
+
+    let inputKind = (event) => {
+        setkindName(event.target.value)
+    }
+
     return (
         <>
-
             <Layout>
 
                 <div>
@@ -116,16 +146,29 @@ const App = () => {
                     <Tooltip title="add kind">
                         <Button type="dashed" icon={<PlusOutlined />} onClick={showAddKind} />
                     </Tooltip>
-                    <Modal
-                        title="Title"
-                        open={open}
-                        onOk={handleOk}
-                        confirmLoading={confirmLoading}
-                        onCancel={handleCancel}
-                    >
-                        <Search placeholder="input search text"  onSearch={onSearch} style={{ width: 200 }} />
-                        <p>{modalText}</p>
-                    </Modal>
+                    <Dialog open={open} onClose={handleCancel}>
+                        <DialogTitle>Add Kind</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>
+                                To add kinds to this website, please enter your kind name here. We
+                                will send updates occasionally.
+                            </DialogContentText>
+                            <TextField
+                                autoFocus
+                                margin="dense"
+                                id="kind_name"
+                                label="Kind name"
+                                type="string"
+                                fullWidth
+                                variant="standard"
+                                onChange={inputKind}
+                            />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleCancel}>Cancel</Button>
+                            <Button onClick={handleOk}>Update</Button>
+                        </DialogActions>
+                    </Dialog>
                 </div>
                 <Dragger {...props}>
                     <p className="ant-upload-drag-icon">

@@ -1,10 +1,11 @@
 import { mclient } from "../../../lib/mysql-client"
 export default function handler(req, res) {
     const {
-        query: { id, name },
+        body: { kind, name },
         method,
     } = req
-
+    console.log(kind)
+    console.log(req.body)
     switch (method) {
         case 'GET':
             // Get data from your database
@@ -17,6 +18,8 @@ export default function handler(req, res) {
         case 'DELETE':
             break
         case 'POST':
+            console.log(kind)
+            add_kind(kind,res)
             break
         default:
             res.setHeader('Allow', ['GET', 'PUT'])
@@ -33,9 +36,33 @@ let get_kind = (res)=>{
         }
         let data = results.map((r)=>{
             console.log(r)
-            return r.kind_name
+            return {label:r.kind_name, value:r.id}
         })
         console.log(data)
         res.status(200).json({"kinds": data})
+    })
+}
+
+let add_kind = (kind, res) =>{
+    
+    let select_md = `select count(*) as count from blog_kind where kind_name = '${kind}'`
+    let insert_cmd = `insert into blog_kind(kind_name,create_date) values ('${kind}',now())`
+    mclient.query(select_md, (err, results, fields) =>{
+        if (err) {
+            console.log('[select ERROR] - ', err.message);
+            res.status(500).json({ "error": err.message })
+            return;
+        }
+        if(results[0].count <= 0) {
+            mclient.query(insert_cmd,(err,results)=>{
+                if (err) {
+                    console.log('[select ERROR] - ', err.message);
+                    res.status(500).json({ "error": err.message })
+                    return;
+                }
+                console.log(results)
+                res.status(200).json(results)
+            })
+        }
     })
 }

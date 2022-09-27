@@ -61,4 +61,13 @@ values('2f7e4c8e09a8d34c6b3c5e8952fd8d92', Curdate())
 select * from blog_scurity
 
 
+create table blog_content_kind(
+	content_kind_id int NOT NULL AUTO_INCREMENT,
+	content_id int not null,
+	kind_id int not null,
+	create_date datetime DEFAULT NULL,
+  update_date datetime DEFAULT NULL,
+  PRIMARY KEY (content_kind_id)
+);
+
 ```

@@ -25,7 +25,7 @@ export default (req, res) => {
             res.end(String(err));
             return;
         }
-        check(res, files);
+        check(res, files, kinds);
         // res.writeHead(200, { 'Content-Type': 'application/json' });
         // res.end(JSON.stringify({ fields, files }, null, 2));
         return;
@@ -55,7 +55,7 @@ function createDir(path) {
     }
 }
 
-function saveFile(file, res) {
+function saveFile(file, res, kinds) {
     // 读文件
 
     // const fileContents = fs.readFileSync(file.filepath)
@@ -75,6 +75,7 @@ function saveFile(file, res) {
         }
         let mysqlClient = createClient()
         let insert_cmd = "insert into blog_content(file_name, content, create_date) values (?, ?,now())"
+        let select_id = `select id from blog_content where file_name = '${file.originalFilename}'`
         // console.log(new Date().getTime())
         const json_bufTry = JSON.stringify(data);
         // console.log(new Date().toLocaleDateString())
@@ -89,6 +90,15 @@ function saveFile(file, res) {
             //console.log('INSERT ID:',result.insertId);        
             console.log('INSERT ID:', result);
             console.log('-----------------------------------------------------------------\n\n');
+
+            mysqlClient.query(select_id, (err, results) => {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    res.status(500).json({ "error": err.message })
+                    return;
+                }
+                add_kind_content(res, results[0].id, kinds)
+            })
             res.status(200).json({ result })
         })
         // const basePath = 'D:/code/github/nextjs-blog/posts/'
@@ -106,8 +116,32 @@ function saveFile(file, res) {
     })
 }
 
+function add_kind_content(res, content_id, kinds) {
+    console.log(content_id,kinds)
+    let value = []
+
+    for (let i in kinds) {
+        value.push(`(${content_id},${kinds[i]},now())`)
+    }
+    let insert_cmd = `insert into blog_content_kind(content_id,kind_id,create_date) values` + value.join(",")
+    console.log(insert_cmd)
+    let mysqlClient = createClient()
+    mysqlClient.query(insert_cmd, (err, results) => {
+        if (err) {
+            console.log('[INSERT ERROR] - ', err.message);
+            res.status(500).json({ "error": err.message })
+            return;
+        }
+        console.log('--------------------------INSERT----------------------------');
+        //console.log('INSERT ID:',result.insertId);        
+        console.log('INSERT ID:', results);
+        console.log('-----------------------------------------------------------------\n\n');
+    })
+
+}
+
 function updateFile(file, res) {
-    
+
     fs.readFile(file.filepath, (err, data) => {
         if (err) {
             responseEnd(err)
@@ -184,7 +218,7 @@ function getClientIP(req) {
         req.connection.socket.remoteAddress;
 };
 
-function check(res, files) {
+function check(res, files, kinds) {
     let select_md = `SELECT count(*) as count
                         from blog_security
                         WHERE SUBTIME(NOW(), 1800) < create_date`
@@ -205,11 +239,11 @@ function check(res, files) {
             res.status(500).json({ "error": "auth faild" })
             return;
         }
-        is_unit(res, files);
+        is_unit(res, files, kinds);
     })
 }
 
-function is_unit(res, files) {
+function is_unit(res, files, kinds) {
     let mysqlClient = createClient()
     let select_md = `select count(*) as count from blog_content where file_name = '${files.file.originalFilename}'`
     mysqlClient.query(select_md, function (err, result, fields) {
@@ -222,7 +256,7 @@ function is_unit(res, files) {
         if (result[0].count > 0) {
             updateFile(files.file, res);
         } else {
-            saveFile(files.file, res);
+            saveFile(files.file, res, kinds);
         }
     })
 }
