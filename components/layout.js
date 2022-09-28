@@ -12,7 +12,7 @@ export default function Layout({ children, home, topbar }) {
     console.log(topbar)
     return (
         <div className={styles.com}>
-            <TopBar data={['redis','java','react','next']}></TopBar>
+            <TopBar data={['redis','java','react','next','node','js', '杂记']}></TopBar>
             <div className={styles.side}>
                 <FileTree></FileTree>
             </div>

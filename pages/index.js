@@ -12,9 +12,13 @@ import { Tree } from 'antd';
 import React from 'react';
 import 'antd/dist/antd.css';
 import FileTree from '../components/fileTree';
-export default function Home({ allPostsData }) {
+import Router, { useRouter } from 'next/router';
+export default function Home({ }) {
+  let router = useRouter()
+  console.log(router.query.kind)
+  let kind = router.query.kind.trim()
   const fetcher = (url) => fetch(url).then((res) => res.json())
-  const { data, error } = useSWR('/api/getBlogInfo', fetcher)
+  const { data, error } = useSWR(`/api/getBlogInfo?kind=${kind}`, fetcher)
   if (!data) {
     return (
       <Layout home>
