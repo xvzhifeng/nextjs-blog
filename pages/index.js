@@ -16,7 +16,7 @@ import Router, { useRouter } from 'next/router';
 export default function Home({ }) {
   let router = useRouter()
   console.log(router.query.kind)
-  let kind = router.query.kind.trim()
+  let kind = router.query.kind
   const fetcher = (url) => fetch(url).then((res) => res.json())
   const { data, error } = useSWR(`/api/getBlogInfo?kind=${kind}`, fetcher)
   if (!data) {
