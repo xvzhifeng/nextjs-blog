@@ -1,11 +1,10 @@
 import { mclient } from "../../../lib/mysql-client"
 export default function handler(req, res) {
     const {
-        body: { kind, name },
+        body: { kind },
         method,
     } = req
     console.log(kind)
-    console.log(req.body)
     switch (method) {
         case 'GET':
             // Get data from your database

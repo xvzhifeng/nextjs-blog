@@ -3,12 +3,15 @@ import { createClient } from '../../../lib/mysql-client'
 
 export default function handler(req, res) {
     const {
+        query:{
+            kind
+        },
         method,
     } = req
     switch (method) {
         case 'GET':
             // Get data from your database
-            getSortedPostsDataFromDB(res)
+            getSortedPostsDataFromDB(kind, res)
             break
         case 'PUT':
             // Update or create data in your database
@@ -24,10 +27,18 @@ export default function handler(req, res) {
     }
 }
 
-function getSortedPostsDataFromDB(res) {
+function getSortedPostsDataFromDB(kind, res) {
     // Get file names under /posts
-    let client = createClient()
     let select_md = "select * from blog_content where file_name like '%md'"
+    console.log("kind:" + kind)
+    if(String(kind) != "undefined" && kind != "") {
+        select_md = `select * from blog_content bc left join blog_content_kind bck 
+        on bc.id = bck.content_id
+        where bck.kind_id = (SELECT id from blog_kind bk where bk.kind_name = "${kind.trim()}")`
+    }
+    console.log(select_md)
+    let client = createClient()
+    
     client.query(select_md, function (err, results, fields) {
         if (err) {
             console.log(err)
